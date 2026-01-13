@@ -1,103 +1,160 @@
-import Image from "next/image";
+"use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendarAlt, faPlus } from "@fortawesome/free-solid-svg-icons";
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+type Category = {
+  id: string;
+  name: string;
+};
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+type PostCategory = {
+  category: Category;
+};
+
+type Post = {
+  id: string;
+  title: string;
+  content: string;
+  coverImageURL: string;
+  createdAt: string;
+  categories: PostCategory[];
+};
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("ja-JP", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
+const Page: React.FC = () => {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch("/api/posts");
+        const data = await response.json();
+        setPosts(data);
+      } catch (error) {
+        console.error("投稿の取得に失敗しました", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPosts();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#E67E22] border-t-transparent mx-auto"></div>
+          <p className="text-[#7F8C8D]">読み込み中...</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {/* Hero Section */}
+      <section className="bg-[#F5F7FA] py-[60px]">
+        <div className="container mx-auto max-w-[1200px] px-4 text-center">
+          <h1 className="mb-4 text-[32px] font-bold text-[#2C3E50]">
+            Clean Blog
+          </h1>
+          <p className="mx-auto max-w-[600px] text-[#7F8C8D]">
+            シンプルで美しいデザインと、優れた読み心地を追求したブログプラットフォーム。
+            あなたのアイデアを、世界に届けましょう。
+          </p>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <section className="py-[80px]">
+        <div className="container mx-auto max-w-[1100px] px-4">
+          {/* Header */}
+          <div className="mb-10 flex items-center justify-between">
+            <h2 className="text-[24px] font-bold text-[#2C3E50]">最新の投稿</h2>
+            <Link href="/posts/new" className="btn-primary">
+              <FontAwesomeIcon icon={faPlus} className="mr-2" />
+              新規投稿
+            </Link>
+          </div>
+
+          {posts.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-[#CED4DA] bg-[#F5F7FA] py-20 text-center">
+              <p className="mb-4 text-lg text-[#7F8C8D]">
+                まだ投稿がありません
+              </p>
+              <Link href="/posts/new" className="btn-primary">
+                最初の投稿を作成する
+              </Link>
+            </div>
+          ) : (
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {posts.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/posts/${post.id}`}
+                  className="card group block"
+                >
+                  {/* Cover Image */}
+                  <div className="relative aspect-video overflow-hidden">
+                    <img
+                      src={post.coverImageURL}
+                      alt={post.title}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+
+                  {/* Content */}
+                  <div className="p-6">
+                    {/* Tags */}
+                    <div className="mb-3 flex flex-wrap gap-2">
+                      {post.categories.slice(0, 3).map((pc) => (
+                        <span
+                          key={pc.category.id}
+                          className="rounded bg-[#F5F7FA] px-2 py-1 text-xs font-medium text-[#2C3E50]"
+                        >
+                          #{pc.category.name}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="mb-3 text-lg font-bold leading-snug text-[#2C3E50] transition-colors group-hover:text-[#E67E22]">
+                      {post.title}
+                    </h3>
+
+                    {/* Excerpt */}
+                    <p
+                      className="mb-4 line-clamp-2 text-sm text-[#7F8C8D]"
+                      dangerouslySetInnerHTML={{
+                        __html: post.content.replace(/<[^>]*>/g, ""),
+                      }}
+                    />
+
+                    {/* Meta */}
+                    <div className="flex items-center text-xs text-[#7F8C8D]">
+                      <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
+                      {formatDate(post.createdAt)}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    </>
   );
-}
+};
+
+export default Page;
