@@ -56,6 +56,16 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     setShowColorPicker(false);
   };
 
+  // 初回レンダリング時のみコンテンツをセット
+  const handleRef = (node: HTMLDivElement | null) => {
+    if (node && node !== editorRef.current) {
+      editorRef.current = node;
+      if (value && node.innerHTML !== value) {
+        node.innerHTML = value;
+      }
+    }
+  };
+
   return (
     <div className="rounded-lg border border-[#CED4DA]">
       {/* Toolbar */}
@@ -64,7 +74,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <div className="flex gap-1 border-r border-[#E5E5E5] pr-2">
           <button
             type="button"
-            onClick={() => execCommand("bold")}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              execCommand("bold");
+            }}
             className="flex h-8 w-8 items-center justify-center rounded text-[#2C3E50] transition-colors hover:bg-white"
             title="太字"
           >
@@ -72,7 +85,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => execCommand("italic")}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              execCommand("italic");
+            }}
             className="flex h-8 w-8 items-center justify-center rounded text-[#2C3E50] transition-colors hover:bg-white"
             title="斜体"
           >
@@ -80,7 +96,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => execCommand("underline")}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              execCommand("underline");
+            }}
             className="flex h-8 w-8 items-center justify-center rounded text-[#2C3E50] transition-colors hover:bg-white"
             title="下線"
           >
@@ -88,7 +107,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => execCommand("strikeThrough")}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              execCommand("strikeThrough");
+            }}
             className="flex h-8 w-8 items-center justify-center rounded text-[#2C3E50] transition-colors hover:bg-white"
             title="取り消し線"
           >
@@ -100,7 +122,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <div className="flex gap-1 border-r border-[#E5E5E5] pr-2">
           <button
             type="button"
-            onClick={() => formatBlock("h1")}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              formatBlock("h1");
+            }}
             className="flex h-8 w-8 items-center justify-center rounded text-[#2C3E50] transition-colors hover:bg-white"
             title="見出し1"
           >
@@ -108,7 +133,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => formatBlock("h2")}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              formatBlock("h2");
+            }}
             className="flex h-8 w-8 items-center justify-center rounded text-[#2C3E50] transition-colors hover:bg-white"
             title="見出し2"
           >
@@ -116,7 +144,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => formatBlock("h3")}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              formatBlock("h3");
+            }}
             className="flex h-8 w-8 items-center justify-center rounded text-[#2C3E50] transition-colors hover:bg-white"
             title="見出し3"
           >
@@ -128,7 +159,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <div className="flex gap-1 border-r border-[#E5E5E5] pr-2">
           <button
             type="button"
-            onClick={() => execCommand("insertUnorderedList")}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              execCommand("insertUnorderedList");
+            }}
             className="flex h-8 w-8 items-center justify-center rounded text-[#2C3E50] transition-colors hover:bg-white"
             title="箇条書き"
           >
@@ -136,7 +170,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => execCommand("insertOrderedList")}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              execCommand("insertOrderedList");
+            }}
             className="flex h-8 w-8 items-center justify-center rounded text-[#2C3E50] transition-colors hover:bg-white"
             title="番号付きリスト"
           >
@@ -148,7 +185,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <div className="relative">
           <button
             type="button"
-            onClick={() => setShowColorPicker(!showColorPicker)}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              setShowColorPicker(!showColorPicker);
+            }}
             className="flex h-8 w-8 items-center justify-center rounded text-[#2C3E50] transition-colors hover:bg-white"
             title="文字色"
           >
@@ -160,7 +200,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                 <button
                   key={color}
                   type="button"
-                  onClick={() => applyColor(color)}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    applyColor(color);
+                  }}
                   className="h-6 w-6 rounded border border-[#E5E5E5] transition-transform hover:scale-110"
                   style={{ backgroundColor: color }}
                   title={color}
@@ -173,12 +216,15 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
       {/* Editor Area */}
       <div
-        ref={editorRef}
+        ref={handleRef}
         contentEditable
         onInput={handleInput}
-        dangerouslySetInnerHTML={{ __html: value }}
+        suppressContentEditableWarning
         className="min-h-[300px] p-4 text-[#333333] leading-[1.8] focus:outline-none"
         data-placeholder={placeholder}
+        style={{
+          fontSize: '16px',
+        }}
       />
 
       <style jsx>{`
@@ -186,6 +232,29 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           content: attr(data-placeholder);
           color: #7f8c8d;
           pointer-events: none;
+        }
+        [contentEditable] :global(h1) {
+          font-size: 2em;
+          font-weight: bold;
+          margin: 0.67em 0;
+        }
+        [contentEditable] :global(h2) {
+          font-size: 1.5em;
+          font-weight: bold;
+          margin: 0.75em 0;
+        }
+        [contentEditable] :global(h3) {
+          font-size: 1.17em;
+          font-weight: bold;
+          margin: 0.83em 0;
+        }
+        [contentEditable] :global(ul),
+        [contentEditable] :global(ol) {
+          margin: 1em 0;
+          padding-left: 2em;
+        }
+        [contentEditable] :global(li) {
+          margin: 0.5em 0;
         }
       `}</style>
     </div>
